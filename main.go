@@ -16,12 +16,11 @@ func main() {
 
 	routers.UserRouters(router)
 
-	// router.GET("/users", getUsers)
-	// router.GET("/login/:id", getUsers)
+	routers.LoginRouters(router)
 
 	router.Run("localhost:8080")
 }
 
 func defaultRoute(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "This is the default route for Authentication API"})
+	c.JSON(http.StatusOK, gin.H{"message": "This is the default route for Authentication API"})
 }
