@@ -9,11 +9,11 @@ import (
 func UserRouters(app *fiber.App) {
 	// accessing the user controller
 	app.Get("/users", controllers.GetAllUsers)
-	//router.GET("/users/:id", controller.GetUserByID)
+	app.Get("/users/:id", controllers.GetAUser)
 
 	// modify the user controller
 	app.Post("/users/create", controllers.CreateUser)
-	//router.PUT("/users/update/:id", controller.UpdateUser)
-	//router.DELETE("/users/delete/:id", controller.DeleteUser)
+	app.Put("/users/update/:id", controllers.UpdateUser)
+	app.Delete("/users/delete/:id", controllers.DeleteAUser)
 
 }
