@@ -1,34 +1,27 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/gin-gonic/gin"
-
 	"harry/auth_system/routers"
 
-	config "harry/auth_system/configs"
+	"github.com/gofiber/fiber/v2"
 )
 
 // album represents data about a record album.
 
 func main() {
-	router := gin.Default()
-
-	// database
-	config.ConnectDB()
+	router := fiber.New()
 
 	// routers
-	router.GET("/", defaultRoute)
+	router.Get("/", defaultRoute)
 
 	routers.UserRouters(router)
 
-	routers.LoginRouters(router)
+	// routers.LoginRouters(router)
 
-	router.Run("localhost:8080")
+	router.Listen(":8080")
 
 }
 
-func defaultRoute(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"message": "This is the default route for Authentication API"})
+func defaultRoute(c *fiber.Ctx) error {
+	return c.JSON(&fiber.Map{"message": "This is the default route for Authentication API"})
 }

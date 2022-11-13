@@ -1,19 +1,19 @@
 package routers
 
 import (
-	controller "harry/auth_system/controllers"
+	"harry/auth_system/controllers"
 
-	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v2"
 )
 
-func UserRouters(router *gin.Engine) {
+func UserRouters(app *fiber.App) {
 	// accessing the user controller
-	router.GET("/users", controller.GetUsers)
-	router.GET("/users/:id", controller.GetUserByID)
+	//router.GET("/users", controller.GetUsers)
+	//router.GET("/users/:id", controller.GetUserByID)
 
 	// modify the user controller
-	router.POST("/users/create", controller.CreateUser)
-	router.PUT("/users/update/:id", controller.UpdateUser)
-	router.DELETE("/users/delete/:id", controller.DeleteUser)
+	app.Post("/users/create", controllers.CreateUser)
+	//router.PUT("/users/update/:id", controller.UpdateUser)
+	//router.DELETE("/users/delete/:id", controller.DeleteUser)
 
 }
