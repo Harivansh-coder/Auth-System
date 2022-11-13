@@ -45,11 +45,21 @@ func GetAllUsers(c *fiber.Ctx) error {
 	)
 }
 
-// func GetUserByID(c *gin.Context) {
-// 	fmt.Println("Hello")
-// 	var id string = c.Param("id")
-// 	c.JSON(http.StatusOK, gin.H{"message": "User by ID", "id": id})
-// }
+func GetAUser(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	userId := c.Params("userId")
+	var user models.User
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(userId)
+
+	err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
+}
 
 func CreateUser(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -81,10 +91,42 @@ func CreateUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusCreated).JSON(models.UserResponse{Status: http.StatusCreated, Message: "user created", Data: &fiber.Map{"data": result}})
 }
 
-// func UpdateUser(c *gin.Context) {
-// 	fmt.Println("Hello")
-// 	c.JSON(http.StatusOK, gin.H{"message": "User updated"})
-// }
+func UpdateUser(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	userId := c.Params("userId")
+	var user models.User
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(userId)
+
+	//validate the request body
+	if err := c.BodyParser(&user); err != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	//use the validator library to validate required fields
+	if validationErr := validate.Struct(&user); validationErr != nil {
+		return c.Status(http.StatusBadRequest).JSON(models.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
+	}
+
+	update := bson.M{"name": user.Name, "email": user.Email, "password": user.Password}
+
+	result, err := userCollection.UpdateOne(ctx, bson.M{"id": objId}, bson.M{"$set": update})
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	//get updated user details
+	var updatedUser models.User
+	if result.MatchedCount == 1 {
+		err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
+		if err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		}
+	}
+
+	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "user updated", Data: &fiber.Map{"data": updatedUser}})
+}
 
 // func DeleteUser(c *gin.Context) {
 // 	fmt.Println("Hello")
