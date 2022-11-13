@@ -128,7 +128,25 @@ func UpdateUser(c *fiber.Ctx) error {
 	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "user updated", Data: &fiber.Map{"data": updatedUser}})
 }
 
-// func DeleteUser(c *gin.Context) {
-// 	fmt.Println("Hello")
-// 	c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
-// }
+func DeleteAUser(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	userId := c.Params("userId")
+	defer cancel()
+
+	objId, _ := primitive.ObjectIDFromHex(userId)
+
+	result, err := userCollection.DeleteOne(ctx, bson.M{"id": objId})
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	if result.DeletedCount < 1 {
+		return c.Status(http.StatusNotFound).JSON(
+			models.UserResponse{Status: http.StatusNotFound, Message: "error", Data: &fiber.Map{"data": "user with specified ID not found"}},
+		)
+	}
+
+	return c.Status(http.StatusOK).JSON(
+		models.UserResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": "user deleted"}},
+	)
+}
