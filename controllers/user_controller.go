@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -17,10 +18,32 @@ import (
 var userCollection *mongo.Collection = config.GetCollection(config.DB, "users")
 var validate = validator.New()
 
-// func GetUsers(c *gin.Context) {
-// 	fmt.Println("Hello")
-// 	c.JSON(http.StatusOK)
-// }
+func GetAllUsers(c *fiber.Ctx) error {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	var users []models.User
+	defer cancel()
+
+	results, err := userCollection.Find(ctx, bson.M{})
+
+	if err != nil {
+		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	}
+
+	//reading from the db in an optimal way
+	defer results.Close(ctx)
+	for results.Next(ctx) {
+		var singleUser models.User
+		if err = results.Decode(&singleUser); err != nil {
+			return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		}
+
+		users = append(users, singleUser)
+	}
+
+	return c.Status(http.StatusOK).JSON(
+		models.UserResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": users}},
+	)
+}
 
 // func GetUserByID(c *gin.Context) {
 // 	fmt.Println("Hello")

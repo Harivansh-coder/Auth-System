@@ -8,7 +8,7 @@ import (
 
 func UserRouters(app *fiber.App) {
 	// accessing the user controller
-	//router.GET("/users", controller.GetUsers)
+	app.Get("/users", controllers.GetAllUsers)
 	//router.GET("/users/:id", controller.GetUserByID)
 
 	// modify the user controller
