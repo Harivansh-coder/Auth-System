@@ -31,6 +31,7 @@ func GetAllUsers(c *fiber.Ctx) error {
 
 	//reading from the db in an optimal way
 	defer results.Close(ctx)
+
 	for results.Next(ctx) {
 		var singleUser models.User
 		if err = results.Decode(&singleUser); err != nil {
