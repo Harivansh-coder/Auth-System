@@ -49,14 +49,18 @@ func GetAllUsers(c *fiber.Ctx) error {
 func GetAUser(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	userId := c.Params("userId")
+
 	var user models.User
 	defer cancel()
 
+	// fmt.Print(userId)
 	objId, _ := primitive.ObjectIDFromHex(userId)
 
-	err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&user)
+	filter := bson.M{"_id": objId}
+
+	err := userCollection.FindOne(ctx, filter).Decode(&user)
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: err.Error(), Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "success", Data: &fiber.Map{"data": user}})
@@ -118,15 +122,15 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 
 	//get updated user details
-	var updatedUser models.User
-	if result.MatchedCount == 1 {
-		err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
-		if err != nil {
-			return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
-		}
-	}
+	// var updatedUser models.User
+	// if result.MatchedCount == 1 {
+	// 	err := userCollection.FindOne(ctx, bson.M{"id": objId}).Decode(&updatedUser)
+	// 	if err != nil {
+	// 		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "error", Data: &fiber.Map{"data": err.Error()}})
+	// 	}
+	// }
 
-	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "user updated", Data: &fiber.Map{"data": updatedUser}})
+	return c.Status(http.StatusOK).JSON(models.UserResponse{Status: http.StatusOK, Message: "user updated", Data: &fiber.Map{"data": result}})
 }
 
 func DeleteAUser(c *fiber.Ctx) error {
