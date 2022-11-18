@@ -16,7 +16,7 @@ func main() {
 
 	routers.UserRouters(router)
 
-	// routers.LoginRouters(router)
+	//routers.LoginRouters(router)
 
 	router.Listen(":8080")
 

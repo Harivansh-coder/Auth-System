@@ -8,6 +8,8 @@ import (
 
 	config "harry/auth_system/configs"
 
+	"golang.org/x/crypto/bcrypt"
+
 	"github.com/go-playground/validator"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
@@ -83,11 +85,16 @@ func CreateUser(c *fiber.Ctx) error {
 		return c.Status(http.StatusBadRequest).JSON(models.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": validationErr.Error()}})
 	}
 
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
+	if err != nil {
+		panic(err)
+	}
+
 	newUser := models.User{
 		Id:       primitive.NewObjectID(),
 		Name:     user.Name,
 		Email:    user.Email,
-		Password: user.Password,
+		Password: string(hashedPassword),
 	}
 
 	result, err := userCollection.InsertOne(ctx, newUser)

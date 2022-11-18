@@ -7,3 +7,8 @@ type UserResponse struct {
 	Message string     `json:"message"`
 	Data    *fiber.Map `json:"data"`
 }
+
+type LoginResponse struct {
+	Token string `json:"token"`
+	Type  string `json:"type"`
+}
