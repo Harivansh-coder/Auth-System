@@ -1,11 +1,11 @@
 package routers
 
-// import (
-// 	"harry/auth_system/controllers"
+import (
+	"harry/auth_system/controllers"
 
-// 	"github.com/gofiber/fiber/v2"
-// )
+	"github.com/gofiber/fiber/v2"
+)
 
-// func LoginRouters(app *fiber.App) {
-// 	app.Post("/login", controllers.Login)
-// }
+func LoginRouters(app *fiber.App) {
+	app.Post("/login", controllers.Login)
+}
