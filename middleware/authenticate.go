@@ -2,6 +2,7 @@ package middleware
 
 // import (
 // 	"fmt"
+// 	"harry/auth_system/models"
 // 	"net/http"
 
 // 	"github.com/gin-gonic/gin"
@@ -11,10 +12,9 @@ package middleware
 // // Authz validates token and authorizes users
 // func Authentication() fiber.Handler {
 // 	return func(c *fiber.Ctx) error {
-// 		clientToken := c.Request.Header("token")
-// 		if clientToken == "" {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
-// 			c.Abort()
+// 		clientToken := c.Request().Header.Peek("token")
+// 		if clientToken == nil {
+// 			c.JSON(http.StatusInternalServerError, models.LoginResponse{"error": fmt.Sprintf("No Authorization header provided")})
 // 			return
 // 		}
 
