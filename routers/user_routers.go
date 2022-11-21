@@ -12,7 +12,7 @@ func UserRouters(app *fiber.App) {
 	app.Get("/users/:id", controllers.GetAUser)
 
 	// modify the user controller
-	app.Post("/users/create", controllers.CreateUser)
+
 	app.Put("/users/:id", controllers.UpdateUser)
 	app.Delete("/users/:id", controllers.DeleteAUser)
 

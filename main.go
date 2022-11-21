@@ -1,6 +1,7 @@
 package main
 
 import (
+	"harry/auth_system/middleware"
 	"harry/auth_system/routers"
 
 	"github.com/gofiber/fiber/v2"
@@ -11,12 +12,17 @@ import (
 func main() {
 	router := fiber.New()
 
+	// router.Use(middleware.Authentication())
+
 	// routers
 	router.Get("/", defaultRoute)
 
-	routers.UserRouters(router)
-
 	routers.LoginRouters(router)
+	routers.SignUpRouters(router)
+
+	router.Use(middleware.Authentication())
+
+	routers.UserRouters(router)
 
 	router.Listen(":8080")
 
