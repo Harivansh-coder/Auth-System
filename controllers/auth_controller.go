@@ -31,14 +31,17 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	err := userCollection.FindOne(ctx, bson.M{"email": user.Email}).Decode(&foundUser)
+
 	defer cancel()
+
 	if err != nil {
-		return c.Status(http.StatusInternalServerError).JSON(models.UserResponse{Status: http.StatusInternalServerError, Message: "user doesn't exit", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusNotFound).JSON(models.UserResponse{Status: http.StatusNotFound, Message: "user doesn't exit", Data: &fiber.Map{"data": err.Error()}})
 	}
 
 	msg := bcrypt.CompareHashAndPassword([]byte(foundUser.Password), []byte(user.Password))
+
 	if msg != nil {
-		return c.Status(http.StatusUnauthorized).JSON(models.UserResponse{Status: http.StatusUnauthorized, Message: "credentials no valid", Data: &fiber.Map{"data": err.Error()}})
+		return c.Status(http.StatusForbidden).JSON(models.UserResponse{Status: http.StatusForbidden, Message: "credentials not valid", Data: &fiber.Map{"data": msg.Error()}})
 	}
 
 	token, _ := utils.GenerateAllTokens(foundUser.Email, foundUser.Name, foundUser.Id.String())

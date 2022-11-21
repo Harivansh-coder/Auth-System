@@ -18,8 +18,8 @@ type LoginUser struct {
 }
 
 type SignedDetails struct {
-	Email string
-	Name  string
-	Id    string
+	Email string `json:"email,omitempty" validate:"required"`
+	Name  string `json:"name,omitempty" validate:"required"`
+	Id    string `json:"id,omitempty"`
 	jwt.StandardClaims
 }

@@ -1,36 +1,33 @@
 package middleware
 
-// import (
-// 	"fmt"
-// 	"net/http"
+import (
+	"harry/auth_system/models"
+	"harry/auth_system/utils"
+	"net/http"
 
-// 	"github.com/gin-gonic/gin"
-// 	"github.com/gofiber/fiber/v2"
-// )
+	"github.com/gofiber/fiber/v2"
+)
 
-// // Authz validates token and authorizes users
-// func Authentication() fiber.Handler {
-// 	return func(c *fiber.Ctx) error {
-// 		clientToken := c.Request.Header("token")
-// 		if clientToken == "" {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("No Authorization header provided")})
-// 			c.Abort()
-// 			return
-// 		}
+// Authz validates token and authorizes users
+func Authentication() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		clientToken := c.Get("token")
 
-// 		claims, err := helper.ValidateToken(clientToken)
-// 		if err != "" {
-// 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
-// 			c.Abort()
-// 			return
-// 		}
+		if clientToken == "" {
+			return c.Status(http.StatusBadRequest).JSON(models.UserResponse{Status: http.StatusBadRequest, Message: "error", Data: &fiber.Map{"data": clientToken}})
+		}
 
-// 		c.Set("email", claims.Email)
-// 		c.Set("first_name", claims.First_name)
-// 		c.Set("last_name", claims.Last_name)
-// 		c.Set("uid", claims.Uid)
+		claims, err := utils.ValidateToken(clientToken)
+		if err != "" {
+			return c.Status(http.StatusUnauthorized).JSON(models.UserResponse{Status: http.StatusUnauthorized, Message: "invalid token", Data: &fiber.Map{"data": clientToken}})
+		}
 
-// 		c.Next()
+		c.Set("email", claims.Email)
+		c.Set("name", claims.Name)
+		c.Set("id", claims.Id)
 
-// 	}
-// }
+		c.Next()
+
+		return nil
+	}
+}

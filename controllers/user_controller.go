@@ -139,7 +139,7 @@ func UpdateUser(c *fiber.Ctx) error {
 
 func DeleteAUser(c *fiber.Ctx) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	userId := c.Params("userId")
+	userId := c.Params("id")
 	defer cancel()
 
 	objId, _ := primitive.ObjectIDFromHex(userId)
